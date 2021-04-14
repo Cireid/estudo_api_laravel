@@ -18,21 +18,21 @@ use App\Http\Controllers\UsuarioController;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::post('entrar', [UsuarioController::class, 'login']);
 
-Route::apiResource('usuario', UsuarioController::class);
+Route::prefix('usuario')->group(function(){
+    Route::get('/', [UsuarioController::class, 'mostrarTodos']);
+    Route::get('/{id}', [UsuarioController::class, 'exibir']);
+    Route::post('/add', [UsuarioController::class, 'inserir']);
+    Route::put('atualizar/{id}', [UsuarioController::class, 'atualizar']);
+    Route::delete('deletar/{id}', [UsuarioController::class], 'deletar');
+});
 
 Route::prefix('produto')->group(function () {
-    Route::get('/', [ProdutoController::class, 'getProduto']);
-    Route::get('/{id?}', [ProdutoController::class, 'getProdutoParams']);
-    Route::post('add', [ProdutoController::class, 'addProduto']);
-    Route::put('update/{id}', [ProdutoController::class, 'updateProduto']);
+    Route::get('/', [ProdutoController::class, 'mostrarTodos']);
+    Route::get('/{id}', [ProdutoController::class, 'exibir']);
+    Route::post('/add', [ProdutoController::class, 'inserir']);
+    Route::put('update/{id}', [ProdutoController::class, 'atualizar']);
     Route::delete('delete/{id}', [ProdutoController::class, 'deletarProduto']);
-    Route::get('pesquisar/{nome}', [ProdutoController::class, 'procurarProduto']);
+    Route::get('pesquisar/{nome}', [ProdutoController::class, 'deletar']);
 });
-
-
-
-Route::post('save', [ProdutoController::class, 'testeData']);

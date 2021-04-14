@@ -3,71 +3,100 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Validator;
 use App\Models\Produto;
+use App\Http\Abstracts\Crud;
 
-class ProdutoController extends Controller
+class ProdutoController extends Crud
 {
     //
-    function getProduto(){
-        return Produto::all();
+    public function mostrarTodos()
+    {
+        try {
+            return Produto::all();
+            return response()->json([
+                'status' => 'Funcional'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'Ocorreu um error',
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
-    function getProdutoParams($id=null){
-        return $id?Produto::find($id):Produto::all();
-    }
-
-    function addProduto(Request $request){
-        $produto = new Produto;
-        $produto->nome_produto = $request->nome_produto;
-        $produto->descricao_produto = $request->descricao_produto;
-        $produto->valor_produto = $request->valor_produto;
-        $produto->quantidade_produto = $request->quantidade_produto;
-        $produto->save();
-    }
-
-    function updateProduto(Request $request, $id){
-
-        $produto = Produto::find($id);
-        $produto->nome_produto = $request->nome_produto;
-        $produto->descricao_produto = $request->descricao_produto;
-        $produto->valor_produto = $request->valor_produto;
-        $produto->quantidade_produto = $request->quantidade_produto;
-        $produto->save();
-    }
-
-    function deletarProduto($id){
-        $produto = Produto::find($id)->delete();
-    }
-
-    function procurarProduto($nome){
-        return Produto::where('nome_produto','like','%'.$nome.'%')->get();
-    }
-
-    function testeData(Request $request){
-        $regras = array(
-            'nome_produto' => 'required', 
-            'descricao_produto' => 'required',
-            'valor_produto' => 'required',
-            'quantidade_produto' => 'required',
-        );
-        $validator = Validator::make($request->all(),$regras);
-
-        if($validator->fails()){
-            return response()->json($validator->errors(),401);
-        }else{
+    public function inserir(Request $request)
+    {
+        try {
             $produto = new Produto;
-            $produto->nome_produto = $request->nome_produto;
-            $produto->descricao_produto = $request->descricao_produto;
-            $produto->valor_produto = $request->valor_produto;
-            $produto->quantidade_produto = $request->quantidade_produto;
-            $resultado = $produto->save();
-            if($resultado){
-                return ['Resultado' => 'Operação bem sucedida'];
-            }else{
-                return ['Resultado' => 'Houve algum problema'];
-            }
+            $resultado = $produto->create([
+                'nome_produto' => $request->nome_produto,
+                'descricao_produto' => $request->descricao_produto,
+                'valor_produto' => $request->valor_produto,
+                'quantidade_produto' => $request->quantidade_produto,
+            ]);
+            return response()->json([
+                'status' => 'funcional',
+                'data' => $resultado
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'Ocorreu um error',
+                'error' => $e->getMessage(),
+            ], 400);
+        }
+    }
 
+    public function atualizar(Request $request, $id)
+    {
+        try {
+            $produto = Produto::find($id);
+            $resultado = $produto->update([
+                'nome_produto' => $request->nome_produto,
+                'descricao_produto' => $request->descricao_produto,
+                'valor_produto' => $request->valor_produto,
+                'quantidade_produto' => $request->quantidade_produto,
+            ]);
+            return response()->json([
+                'status' => 'Funcional',
+                'data' => $resultado,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'Ocorreu um erro',
+                'error' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    public function deletar($id)
+    {
+        try {
+            $produto = Produto::find($id)->delete();
+            return response()->json([
+                'status' => 'Funcional',
+                'data' => $produto,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'Ocorreu um error',
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function exibir($id)
+    {
+        try {
+            $produto = Produto::find($id);
+            return response()->json([
+                'status' => 'Exibido com sucesso',
+                'data' => $produto
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'ocorreu um erro',
+                'error' => $e->getMessage(),
+            ], 400);
         }
     }
 }
